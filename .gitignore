@@ -1,0 +1,16 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# dependencies
+node_modules
+
+# build output
+.next
+dist
+
+# misc
+.DS_Store
+.vercel
+*.log
