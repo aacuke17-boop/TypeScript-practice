@@ -1,88 +1,36 @@
-import type { Id, PagePath, Slug } from './aliases'
-import type { Block } from './blocks'
+import type { ApiErrorBody, ApiResult } from './types'
 
-// ---------- Result wrapper ----------
+// No trailing slash, so paths like "/api/page" can be appended safely
+const API_URL = (import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '')
 
-// Union: either data or an error message
-export type ApiResult<T> =
-  | { status: 'ok'; data: T }
-  | { status: 'error'; message: string }
+export async function fetchJson<T>(path: string, init?: RequestInit): Promise<ApiResult<T>> {
+  try {
+    const response = await fetch(`${API_URL}${path}`, init)
 
-// Body of an error response from the CMS, e.g. { "message": "Page not found" }
-export type ApiErrorBody = {
-  message: string
+    if (!response.ok) {
+      let message = `Request failed (${response.status})`
+      try {
+        const body = (await response.json()) as Partial<ApiErrorBody>
+        if (typeof body.message === 'string') message = body.message
+      } catch {
+        // The error response is not JSON, keep the default message
+      }
+      return { status: 'error', message, httpStatus: response.status }
+    }
+
+    const data = (await response.json()) as T
+    return { status: 'ok', data }
+  } catch (error) {
+    // Network failure, wrong URL, CORS rejection or invalid JSON
+    const message = error instanceof Error ? error.message : 'Network error'
+    return { status: 'error', message }
+  }
 }
 
-// ---------- GET /api/common ----------
-
-export type MenuItem = {
-  label: string
-  path: PagePath
+export function postJson<T>(path: string, body: unknown): Promise<ApiResult<T>> {
+  return fetchJson<T>(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
 }
-
-export type CommonResponse = {
-  siteName: string
-  menu: MenuItem[]
-  footerText: string
-  footerContact: string
-}
-
-// ---------- GET /api/page ----------
-
-export type ApiMeta = {
-  title: string
-  path: PagePath
-}
-
-export type PageData = {
-  blocks: Block[]
-}
-
-// Intersection: meta & content
-export type PageResponse = ApiMeta & PageData
-
-// ---------- POST /api/attempt ----------
-
-export type AnswerPayload = {
-  questionId: string
-  optionIds: string[]
-}
-
-export type AttemptRequest = {
-  slug: Slug
-  participantName?: string
-  answers: AnswerPayload[]
-}
-
-export type ReviewOption = {
-  id: string
-  text: string
-  isCorrect: boolean
-  selected: boolean
-}
-
-export type ReviewQuestion = {
-  questionId: string
-  text: string
-  points: number
-  earned: number
-  options: ReviewOption[]
-}
-
-export type TestAttemptResult = {
-  isTest: true
-  score: number
-  maxScore: number
-  review: ReviewQuestion[]
-}
-
-export type SurveyAttemptResult = {
-  isTest: false
-  saved: true
-}
-
-// Union with discriminant "isTest"
-export type AttemptResult = TestAttemptResult | SurveyAttemptResult
-
-// Re-exported so that API types and ids stay importable from one place
-export type { Id }
