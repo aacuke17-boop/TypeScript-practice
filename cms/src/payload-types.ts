@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    questionnaires: Questionnaire;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +79,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    questionnaires: QuestionnairesSelect<false> | QuestionnairesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -164,6 +166,38 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "questionnaires".
+ */
+export interface Questionnaire {
+  id: number;
+  title: string;
+  /**
+   * Latin letters, digits and hyphens only, e.g. js-basics-quiz
+   */
+  slug: string;
+  description?: string | null;
+  isTest?: boolean | null;
+  cover?: (number | null) | Media;
+  published?: boolean | null;
+  questions?:
+    | {
+        text: string;
+        points?: number | null;
+        options?:
+          | {
+              text: string;
+              isCorrect?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -193,6 +227,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'questionnaires';
+        value: number | Questionnaire;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -276,6 +314,34 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "questionnaires_select".
+ */
+export interface QuestionnairesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  isTest?: T;
+  cover?: T;
+  published?: T;
+  questions?:
+    | T
+    | {
+        text?: T;
+        points?: T;
+        options?:
+          | T
+          | {
+              text?: T;
+              isCorrect?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
