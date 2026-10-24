@@ -8,13 +8,35 @@ export function renderHeader(container: HTMLElement, common: CommonResponse): vo
     attrs: { href: '/' },
   })
 
+  const toggle = el('button', {
+    className: 'menu-toggle',
+    text: 'Menu',
+    attrs: { type: 'button', 'aria-expanded': 'false', 'aria-controls': 'site-menu' },
+  })
+
   const nav = el(
     'nav',
     { className: 'menu', attrs: { id: 'site-menu' } },
     common.menu.map((item) => el('a', { text: item.label, attrs: { href: item.path } })),
   )
 
-  container.replaceChildren(brand, nav)
+  function setOpen(open: boolean): void {
+    container.classList.toggle('menu-open', open)
+    toggle.setAttribute('aria-expanded', String(open))
+    toggle.textContent = open ? 'Close' : 'Menu'
+  }
+
+  toggle.addEventListener('click', () => {
+    setOpen(!container.classList.contains('menu-open'))
+  })
+
+  // After choosing a menu item the menu closes by itself
+  nav.addEventListener('click', (event) => {
+    if (event.target instanceof Element && event.target.closest('a')) setOpen(false)
+  })
+
+  container.replaceChildren(brand, toggle, nav)
+  setOpen(false)
 }
 
 export function renderFooter(container: HTMLElement, common: CommonResponse): void {
