@@ -1,10 +1,10 @@
 import './style.css'
 import { fetchJson } from './api'
-import { el } from './dom'
 import { markActiveLink, renderFooter, renderHeader } from './layout'
 import { renderCmsPage } from './pages/cmsPage'
+import { renderQuestionnairePage } from './pages/questionnairePage'
 import { startRouter, type Route } from './router'
-import { showError, showLoading, showReady } from './state'
+import { showError, showLoading } from './state'
 import type { CommonResponse } from './types'
 
 function getElement(id: string): HTMLElement {
@@ -29,11 +29,9 @@ function renderRoute(route: Route): void {
 
   if (route.kind === 'page') {
     void renderCmsPage(content, route.path, siteName, isCurrent)
-    return
+  } else {
+    void renderQuestionnairePage(content, route.slug, siteName, isCurrent)
   }
-
-  // Temporary stub: the questionnaire page is added in step 12
-  showReady(content, el('p', { text: `Questionnaire: ${route.slug}` }))
 }
 
 async function init(): Promise<void> {
