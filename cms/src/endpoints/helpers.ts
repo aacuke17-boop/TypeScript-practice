@@ -31,3 +31,7 @@ export function toCard(req: PayloadRequest, q: Questionnaire): QuestionnaireCard
     cover: cover?.url ? { url: absoluteUrl(req, cover.url), alt: cover.alt } : null,
   }
 }
+
+export function jsonError(message: string, status = 400): Response {
+  return Response.json({ message }, { status })
+}
