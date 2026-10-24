@@ -71,6 +71,7 @@ export interface Config {
     media: Media;
     questionnaires: Questionnaire;
     pages: Page;
+    attempts: Attempt;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +83,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     questionnaires: QuestionnairesSelect<false> | QuestionnairesSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    attempts: AttemptsSelect<false> | AttemptsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -251,6 +253,31 @@ export interface Page {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attempts".
+ */
+export interface Attempt {
+  id: number;
+  questionnaire: number | Questionnaire;
+  participantName?: string | null;
+  /**
+   * Empty for surveys
+   */
+  score?: number | null;
+  answers:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  completedAt: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -288,6 +315,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'attempts';
+        value: number | Attempt;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -441,6 +472,19 @@ export interface PagesSelect<T extends boolean = true> {
               blockName?: T;
             };
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "attempts_select".
+ */
+export interface AttemptsSelect<T extends boolean = true> {
+  questionnaire?: T;
+  participantName?: T;
+  score?: T;
+  answers?: T;
+  completedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

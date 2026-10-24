@@ -11,6 +11,7 @@ import { Questionnaires } from './collections/Questionnaires'
 import { Pages } from './collections/Pages'
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
+import { Attempts } from './collections/Attempts'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -22,7 +23,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Questionnaires, Pages],
+  collections: [Users, Media, Questionnaires, Pages, Attempts],
   globals: [Header, Footer],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
