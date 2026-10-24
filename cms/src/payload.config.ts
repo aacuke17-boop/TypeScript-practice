@@ -12,6 +12,8 @@ import { Pages } from './collections/Pages'
 import { Header } from './globals/Header'
 import { Footer } from './globals/Footer'
 import { Attempts } from './collections/Attempts'
+import { commonEndpoint } from './endpoints/common'
+import { pageEndpoint } from './endpoints/page'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -25,6 +27,8 @@ export default buildConfig({
   },
   collections: [Users, Media, Questionnaires, Pages, Attempts],
   globals: [Header, Footer],
+  endpoints: [commonEndpoint, pageEndpoint],
+  cors: [process.env.FRONTEND_URL || 'http://localhost:5173'],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
