@@ -17,6 +17,7 @@ import { pageEndpoint } from './endpoints/page'
 import { questionnaireEndpoint } from './endpoints/questionnaire'
 import { attemptEndpoint } from './endpoints/attempt'
 import { exportCsvEndpoint } from './endpoints/exportCsv'
+import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -37,7 +38,10 @@ export default buildConfig({
     attemptEndpoint,
     exportCsvEndpoint,
   ],
-  cors: [process.env.FRONTEND_URL || 'http://localhost:5173'],
+  cors: (process.env.FRONTEND_URL || 'http://localhost:5173')
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/+$/, ''))
+    .filter(Boolean),
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -49,5 +53,11 @@ export default buildConfig({
     },
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    vercelBlobStorage({
+      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      collections: { media: true },
+      token: process.env.BLOB_READ_WRITE_TOKEN || '',
+    }),
+  ],
 })
